@@ -1,19 +1,21 @@
 package com.example.jettodoapp2
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.jettodoapp2.components.EditDialog
+import com.example.jettodoapp2.components.TaskList
 import com.example.jettodoapp2.ui.theme.JetTodoApp2Theme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,6 +37,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainContent(viewModel: MainViewModel = hiltViewModel()) {
     if (viewModel.isShowDialog) {
@@ -45,5 +48,16 @@ fun MainContent(viewModel: MainViewModel = hiltViewModel()) {
         FloatingActionButton(onClick = { viewModel.isShowDialog = true }) {
             Icon(imageVector = Icons.Default.Add, contentDescription = "新規作成")
         }
-    }) {}
+    }) {
+        val tasks by viewModel.tasks.collectAsState(initial = emptyList())
+
+        TaskList(
+            tasks = tasks,
+            onClickRow = {
+                viewModel.setEditingTask(it)
+                viewModel.isShowDialog = true
+            },
+            onClickDelete = { viewModel.deleteTask(it) },
+        )
+    }
 }
